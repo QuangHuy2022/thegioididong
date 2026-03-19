@@ -64,7 +64,7 @@
 
                 <div class="mb-3">
                     <label for="price" class="form-label fw-semibold">Giá (₫):</label>
-                    <input type="number" step="0.01" th:field="*{price}" class="form-control" id="price" required placeholder="0">
+                    <input type="number" step="0.01" th:field="*{price}" class="form-control" id="price" required placeholder="0" oninput="calculateOriginalPrice()">
                 </div>
 
                 <div class="mb-3">
@@ -90,7 +90,8 @@
                         <!-- Bình thường -->
                         <label class="type-radio-wrapper">
                             <input type="radio" name="productType" value="NONE"
-                                   th:checked="${product.productType == null or product.productType == 'NONE'}">
+                                   th:checked="${product.productType == null or product.productType == 'NONE'}"
+                                   onchange="togglePromotionFields(this.value)">
                             <div class="product-type-card">
                                 <i class="fas fa-tag text-secondary fs-5"></i>
                                 <span class="fw-semibold text-secondary">Bình Thường</span>
@@ -100,7 +101,8 @@
                         <!-- Khuyến mãi -->
                         <label class="type-radio-wrapper">
                             <input type="radio" name="productType" value="KHUYEN_MAI" class="type-promo"
-                                   th:checked="${product.productType == 'KHUYEN_MAI'}">
+                                   th:checked="${product.productType == 'KHUYEN_MAI'}"
+                                   onchange="togglePromotionFields(this.value)">
                             <div class="product-type-card">
                                 <i class="fas fa-percent text-danger fs-5"></i>
                                 <span class="fw-semibold text-danger">Khuyến Mãi</span>
@@ -110,7 +112,8 @@
                         <!-- Quà tặng -->
                         <label class="type-radio-wrapper">
                             <input type="radio" name="productType" value="QUA_TANG" class="type-gift"
-                                   th:checked="${product.productType == 'QUA_TANG'}">
+                                   th:checked="${product.productType == 'QUA_TANG'}"
+                                   onchange="togglePromotionFields(this.value)">
                             <div class="product-type-card">
                                 <i class="fas fa-gift text-success fs-5"></i>
                                 <span class="fw-semibold text-success">Quà Tặng</span>
@@ -118,6 +121,18 @@
                         </label>
 
                     </div>
+                </div>
+
+                <div id="promotionFields" th:style="${product.productType == 'KHUYEN_MAI' ? 'display:block' : 'display:none'}">
+                    <div class="mb-3">
+                        <label for="promotionQuantity" class="form-label fw-semibold">Số lượng khuyến mãi:</label>
+                        <input type="number" th:field="*{promotionQuantity}" class="form-control" id="promotionQuantity" placeholder="0">
+                    </div>
+                    <div class="mb-3">
+                        <label for="discount" class="form-label fw-semibold">Giảm giá (%):</label>
+                        <input type="number" th:field="*{discount}" class="form-control" id="discount" placeholder="Nhập % giảm giá..." oninput="calculateOriginalPrice()">
+                    </div>
+                    <input type="hidden" th:field="*{originalPrice}" id="originalPrice">
                 </div>
 
                 <div class="mb-3">
@@ -142,6 +157,32 @@
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function togglePromotionFields(value) {
+        const promotionFields = document.getElementById('promotionFields');
+        if (value === 'KHUYEN_MAI') {
+            promotionFields.style.display = 'block';
+        } else {
+            promotionFields.style.display = 'none';
+            document.getElementById('discount').value = 0;
+            document.getElementById('originalPrice').value = document.getElementById('price').value;
+        }
+    }
+
+    function calculateOriginalPrice() {
+        const price = parseFloat(document.getElementById('price').value) || 0;
+        const discount = parseFloat(document.getElementById('discount').value) || 0;
+        const productType = document.querySelector('input[name="productType"]:checked').value;
+
+        if (productType === 'KHUYEN_MAI' && discount > 0 && discount < 100) {
+            // Giá gốc = Giá / (1 - %giảm/100)
+            const originalPrice = price / (1 - (discount / 100));
+            document.getElementById('originalPrice').value = originalPrice.toFixed(2);
+        } else {
+            document.getElementById('originalPrice').value = price;
+        }
+    }
+</script>
 </body>
 </html>
 

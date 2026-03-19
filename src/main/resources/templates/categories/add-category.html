@@ -25,26 +25,23 @@
                     <select th:field="*{parentCategory}" class="form-select" id="parentCategory">
                         <option value="">-- Không có (danh mục gốc Lớp 1) --</option>
                         <optgroup label="— Đặt làm lớp 2 (chọn danh mục gốc) —">
-                            <option value="Điện thoại">📱 Điện thoại</option>
-                            <option value="Laptop">💻 Laptop</option>
-                            <option value="Phụ kiện">🎧 Phụ kiện</option>
-                            <option value="Smartwatch">⌚ Smartwatch</option>
-                            <option value="Đồng hồ">🕐 Đồng hồ</option>
-                            <option value="Tablet">📲 Tablet</option>
-                            <option value="Máy cũ Thu cũ">♻️ Máy cũ Thu cũ</option>
-                            <option value="Màn hình máy in">🖨️ Màn hình máy in</option>
-                            <option value="Sim Thẻ Cào">📶 Sim Thẻ Cào</option>
-                            <option value="Dịch vụ tiện ích">🛠️ Dịch vụ tiện ích</option>
+                            <th:block th:each="cat : ${allCategories}">
+                                <option th:if="${cat.parentCategory == null}"
+                                        th:value="${cat.id}"
+                                        th:text="${cat.name}">
+                                </option>
+                            </th:block>
                         </optgroup>
                         <optgroup label="— Đặt làm lớp 3 (chọn danh mục lớp 2) —">
-                            <option th:each="cat : ${allCategories}"
-                                    th:if="${cat.parentCategory != null and !cat.parentCategory.isEmpty()}"
-                                    th:value="${cat.name}"
-                                    th:text="'    └ ' + ${cat.name} + ' (ảnh: ' + (${cat.parentCategory} ?: 'gốc') + ')'">
-                            </option>
+                            <th:block th:each="cat : ${allCategories}">
+                                <option th:if="${cat.parentCategory != null}"
+                                        th:value="${cat.id}"
+                                        th:text="'    └ ' + ${cat.name}">
+                                </option>
+                            </th:block>
                         </optgroup>
                     </select>
-                    <div class="form-text text-muted">Chọn danh mục cha: Lớc 1 = chọn gốc (Laptop...), Lớp 2 = chọn lớc 1, Lớp 3 = chọn lớp 2.</div>
+                    <div class="form-text text-muted">Chọn danh mục cha: Lớp 1 = không chọn, Lớp 2 = chọn lớp 1, Lớp 3 = chọn lớp 2.</div>
                 </div>
 
                 <div class="mb-3">

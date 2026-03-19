@@ -31,3 +31,11 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Build and Log Files ###
+build_errors*.txt
+run_out*.txt
+build_log.txt
+mvnw
+mvnw.cmd
+.mvn/

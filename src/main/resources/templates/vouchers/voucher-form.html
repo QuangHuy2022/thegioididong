@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Tạo Voucher - thegioididong</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .voucher-form-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .form-label { font-weight: 600; color: #333; }
+        .btn-save { background-color: #2f80ed; color: #fff; font-weight: bold; padding: 12px; }
+        .btn-save:hover { background-color: #1a6edb; color: #fff; }
+    </style>
+</head>
+<body style="background-color: #f3f3f3;">
+    <!-- Header -->
+    <header class="tgdd-header">
+        <div class="header-container">
+            <a href="/" class="logo-wrapper">
+                <div class="logo-tgdd">
+                    <i class="fas fa-mobile-alt"></i> thegioididong
+                </div>
+            </a>
+            <div class="text-center flex-grow-1">
+                <h5 class="m-0 text-white">TẠO VOUCHER MỚI</h5>
+            </div>
+            <a href="/vouchers" class="text-white text-decoration-none">Hủy bỏ</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="voucher-form-container">
+            <h4 class="mb-4 text-center fw-bold">Thông tin Voucher</h4>
+            <form th:action="@{/vouchers/save}" method="post" th:object="${voucher}">
+                <div class="mb-3">
+                    <label for="code" class="form-label">Mã Voucher</label>
+                    <input type="text" th:field="*{code}" class="form-control" id="code" placeholder="Ví dụ: GIAM20K" required>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="discountAmount" class="form-label">Số tiền giảm (₫)</label>
+                        <input type="number" th:field="*{discountAmount}" class="form-control" id="discountAmount" placeholder="0" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="minOrderAmount" class="form-label">Đơn tối thiểu (₫)</label>
+                        <input type="number" th:field="*{minOrderAmount}" class="form-control" id="minOrderAmount" placeholder="0" required>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="active" class="form-label">Trạng thái</label>
+                    <select th:field="*{active}" class="form-select" id="active">
+                        <option value="true">Kích hoạt ngay</option>
+                        <option value="false">Tạm tắt</option>
+                    </select>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-save">
+                        <i class="fas fa-save me-1"></i> LƯU VOUCHER
+                    </button>
+                    <a href="/vouchers" class="btn btn-outline-secondary">Quay lại danh sách</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

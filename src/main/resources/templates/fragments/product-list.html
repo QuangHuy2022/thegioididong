@@ -53,10 +53,10 @@
                     <span class="text-muted">(10)</span>
                 </div>
                 
-                <a th:href="@{/products/edit/{id}(id=${product.id})}" 
+                <a th:href="@{/product/{id}(id=${product.id})}" 
                    th:class="${isFlashSale} ? 'btn-buy-fs' : 'btn-buy'" 
-                   th:text="${isFlashSale} ? 'Mua ngay' : 'XEM CHI TIẾT'">
-                   Mua ngay
+                   th:text="${isFlashSale} ? 'MUA NGAY' : 'XEM CHI TIẾT'">
+                   XEM CHI TIẾT
                 </a>
             </div>
         </div>

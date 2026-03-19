@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Đơn hàng của tôi - thegioididong.com</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body style="background-color: #f3f3f3;">
+    <header class="tgdd-header">
+        <div class="header-container">
+            <a href="/" class="logo-wrapper">
+                <div class="logo-tgdd">
+                    <i class="fas fa-mobile-alt"></i> thegioididong
+                </div>
+            </a>
+            <div class="text-center flex-grow-1">
+                <h5 class="m-0">LỊCH SỬ ĐƠN HÀNG</h5>
+            </div>
+            <a href="/" class="text-dark text-decoration-none">Quay lại trang chủ</a>
+        </div>
+    </header>
+
+    <div class="container py-4">
+        <div class="bg-white rounded p-4 shadow-sm">
+            <div th:if="${orders == null or orders.isEmpty()}" class="text-center py-5">
+                <p>Quý khách chưa có đơn hàng nào.</p>
+                <a href="/" class="btn btn-warning fw-bold mt-3">MUA SẮM NGAY</a>
+            </div>
+
+            <div th:if="${orders != null and !orders.isEmpty()}">
+                <div th:each="order : ${orders}" class="card mb-3 border-0 shadow-sm" style="background-color: #f8f9fa;">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <span class="fw-bold">Đơn hàng #<span th:text="${order.id}">000</span></span>
+                        <div>
+                            <span th:if="${order.status == 'PENDING'}" class="badge bg-warning text-dark">Chờ thanh toán</span>
+                            <span th:if="${order.status == 'PAID'}" class="badge bg-success">Đã thanh toán</span>
+                            <span th:if="${order.status == 'CANCELLED'}" class="badge bg-danger">Đã hủy</span>
+                            <span th:if="${order.status == 'FAILED'}" class="badge bg-secondary">Thất bại</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div th:each="detail : ${order.orderDetails}" class="d-flex align-items-center mb-3">
+                            <img th:if="${detail.product.image != null}" th:src="@{/images/{img}(img=${detail.product.image})}" style="width: 60px; height: 60px; object-fit: contain;" class="me-3">
+                            <div class="flex-grow-1">
+                                <h6 class="m-0" th:text="${detail.product.name}">Tên sản phẩm</h6>
+                                <div class="text-muted" style="font-size: 14px;">Số lượng: <span th:text="${detail.quantity}">1</span></div>
+                            </div>
+                            <div class="fw-bold text-danger" th:text="${#numbers.formatDecimal(detail.price * detail.quantity, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</div>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="small text-muted">Phí giao hàng: <span th:text="${order.shippingFee == 0 ? 'Miễn phí' : #numbers.formatDecimal(order.shippingFee, 0, 'COMMA', 0, 'POINT') + '₫'}">0₫</span></div>
+                                <div class="small text-success">Điểm tích lũy: <span th:text="'+' + ${order.rewardPoints}">0</span> điểm</div>
+                            </div>
+                            <div class="text-end">
+                                <div class="fw-bold text-danger fs-5" th:text="'Tổng cộng: ' + ${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</div>
+                                <div th:if="${order.status == 'PENDING'}" class="mt-2">
+                                    <form th:action="@{/orders/cancel/{id}(id=${order.id})}" method="post">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')">Hủy đơn hàng</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Quản lý Voucher - thegioididong</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .voucher-admin-container {
+            background: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-top: 20px;
+        }
+        .voucher-table thead {
+            background-color: #f8f9fa;
+        }
+        .badge-active { background-color: #e8f5ed; color: #28a745; border: 1px solid #28a745; }
+        .badge-inactive { background-color: #fbe9e7; color: #d0021c; border: 1px solid #d0021c; }
+    </style>
+</head>
+<body style="background-color: #f3f3f3;">
+    <!-- Header -->
+    <header class="tgdd-header">
+        <div class="header-container">
+            <a href="/" class="logo-wrapper">
+                <div class="logo-tgdd">
+                    <i class="fas fa-mobile-alt"></i> thegioididong
+                </div>
+            </a>
+            <div class="text-center flex-grow-1">
+                <h5 class="m-0 text-white">QUẢN LÝ VOUCHER</h5>
+            </div>
+            <a href="/" class="text-white text-decoration-none"><i class="fas fa-home"></i> Trang chủ</a>
+        </div>
+    </header>
+
+    <div class="container mt-4">
+        <div class="voucher-admin-container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="fw-bold m-0"><i class="fas fa-ticket-alt text-primary me-2"></i>Danh sách Voucher</h4>
+                <a href="/vouchers/create" class="btn btn-primary">
+                    <i class="fas fa-plus-circle me-1"></i> Tạo Voucher mới
+                </a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle voucher-table">
+                    <thead>
+                        <tr>
+                            <th>Mã Voucher</th>
+                            <th>Số tiền giảm</th>
+                            <th>Đơn tối thiểu</th>
+                            <th>Trạng thái</th>
+                            <th class="text-center">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="v : ${vouchers}">
+                            <td><code class="fw-bold fs-6 text-dark" th:text="${v.code}">CODE</code></td>
+                            <td class="fw-bold text-danger" th:text="${#numbers.formatDecimal(v.discountAmount, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</td>
+                            <td th:text="${#numbers.formatDecimal(v.minOrderAmount, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</td>
+                            <td>
+                                <span th:if="${v.active}" class="badge badge-active">Đang hoạt động</span>
+                                <span th:unless="${v.active}" class="badge badge-inactive">Đã tắt</span>
+                            </td>
+                            <td class="text-center">
+                                <a th:href="@{/vouchers/edit/{id}(id=${v.id})}" class="btn btn-outline-warning btn-sm me-1">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a th:href="@{/vouchers/delete/{id}(id=${v.id})}" class="btn btn-outline-danger btn-sm" 
+                                   onclick="return confirm('Bạn có chắc chắn muốn xóa voucher này?')">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        <tr th:if="${vouchers.empty}">
+                            <td colspan="5" class="text-center py-4 text-muted">Chưa có voucher nào được tạo.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

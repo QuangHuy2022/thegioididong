@@ -59,6 +59,7 @@ public class ProductController {
                 e.printStackTrace();
             }
         }
+        product.setPromotion("KHUYEN_MAI".equals(product.getProductType()));
         productService.saveProduct(product);
         return "redirect:/products";
     }

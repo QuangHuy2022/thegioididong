@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Thanh toán - thegioididong.com</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .checkout-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .btn-order-finish {
+            background-color: #fb6e2e;
+            color: #fff;
+            font-weight: bold;
+            width: 100%;
+            padding: 15px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            border: none;
+        }
+    </style>
+</head>
+<body style="background-color: #f3f3f3;">
+    <div class="tgdd-header">
+        <div class="header-container">
+            <a href="/" class="logo-wrapper">
+                <div class="logo-tgdd">
+                    <i class="fas fa-mobile-alt"></i> thegioididong
+                </div>
+            </a>
+            <div class="text-center flex-grow-1">
+                <h5 class="m-0">THANH TOÁN</h5>
+            </div>
+            <a href="/cart" class="text-dark text-decoration-none">Quay lại giỏ hàng</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="checkout-container">
+            <div th:if="${param.error}" class="alert alert-danger">
+                <span th:if="${param.error[0] == 'momo_error'}">Lỗi kết nối với cổng thanh toán MoMo. Vui lòng thử lại sau.</span>
+                <span th:if="${param.error[0] == 'server_error'}">Lỗi hệ thống khi xử lý đơn hàng.</span>
+                <span th:if="${param.error[0] == 'payment_failed'}">Thanh toán MoMo thất bại hoặc đã bị hủy.</span>
+            </div>
+            <h4>Thông tin đặt hàng</h4>
+            <form th:action="@{/orders/place}" method="post">
+                <div class="mb-3">
+                    <label class="form-label">Họ và tên người nhận</label>
+                    <input type="text" name="customerName" class="form-control" 
+                           th:value="${#authentication.principal != 'anonymousUser' ? #authentication.name : ''}" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Hình thức nhận hàng</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="deliveryMethod" id="delivery1" checked>
+                        <label class="form-check-label" for="delivery1">Giao tận nơi</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="deliveryMethod" id="delivery2">
+                        <label class="form-check-label" for="delivery2">Nhận tại cửa hàng</label>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Hình thức thanh toán</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="paymentMethod" id="payment1" value="COD" checked>
+                        <label class="form-check-label" for="payment1">
+                            <i class="fas fa-money-bill-wave text-success"></i> Thanh toán khi nhận hàng (COD)
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="paymentMethod" id="payment2" value="MOMO">
+                        <label class="form-check-label" for="payment2">
+                            <img src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png" width="20" alt="MoMo"> Thanh toán qua MoMo
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Voucher giảm giá</label>
+                    <div class="voucher-selection p-3 border rounded bg-white">
+                        <div th:if="${userVouchers == null or userVouchers.isEmpty()}" class="text-muted small">
+                            Bạn không có voucher nào. <a href="/vouchers/redeem" class="text-primary">Đổi voucher ngay</a>
+                        </div>
+                        <div th:if="${userVouchers != null and !userVouchers.isEmpty()}">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="voucherId" id="noVoucher" value="" checked onchange="updateTotalWithVoucher(0)">
+                                <label class="form-check-label" for="noVoucher">Không sử dụng voucher</label>
+                            </div>
+                            <div th:each="v : ${userVouchers}" class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="voucherId" th:id="'v-' + ${v.id}" th:value="${v.id}" 
+                                       th:disabled="${subtotal < v.minOrderAmount}"
+                                       th:onchange="'updateTotalWithVoucher(' + ${v.discountAmount} + ')'">
+                                <label class="form-check-label" th:for="'v-' + ${v.id}">
+                                    <span class="fw-bold text-primary" th:text="${v.code} + ' - Giảm ' + ${#numbers.formatDecimal(v.discountAmount, 0, 'COMMA', 0, 'POINT')} + '₫'"></span>
+                                    <br><small class="text-muted" th:text="'Đơn tối thiểu: ' + ${#numbers.formatDecimal(v.minOrderAmount, 0, 'COMMA', 0, 'POINT')} + '₫'"></small>
+                                    <span th:if="${subtotal < v.minOrderAmount}" class="badge bg-secondary ms-1">Chưa đủ điều kiện</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="summary-box p-3 mb-4" style="background-color: #f8f9fa; border-radius: 4px;">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Tạm tính:</span>
+                        <span th:text="${#numbers.formatDecimal(subtotal, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Phí giao hàng:</span>
+                        <span th:text="${shippingFee == 0 ? 'Miễn phí' : #numbers.formatDecimal(shippingFee, 0, 'COMMA', 0, 'POINT') + '₫'}">0₫</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2 text-success fw-bold">
+                        <span>Điểm thưởng tích lũy:</span>
+                        <span th:text="'+' + ${rewardPoints} + ' điểm'">0 điểm</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2 text-danger fw-bold" id="voucherRow" style="display:none !important;">
+                        <span>Voucher giảm giá:</span>
+                        <span id="voucherDiscountText">-0₫</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-2 fw-bold">
+                        <span>Tổng tiền thanh toán:</span>
+                        <span class="text-danger fs-5" id="finalTotalPrice" th:text="${#numbers.formatDecimal(totalPrice, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-order-finish">Xác nhận đặt hàng</button>
+            </form>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        const baseTotalPrice = /*[[${totalPrice}]]*/ 0;
+        
+        function updateTotalWithVoucher(discountAmount) {
+            const finalPrice = Math.max(0, baseTotalPrice - discountAmount);
+            const voucherRow = document.getElementById('voucherRow');
+            const voucherDiscountText = document.getElementById('voucherDiscountText');
+            const finalTotalPrice = document.getElementById('finalTotalPrice');
+            
+            if (discountAmount > 0) {
+                voucherRow.setAttribute('style', 'display: flex !important;');
+                voucherDiscountText.innerText = '-' + discountAmount.toLocaleString('vi-VN') + '₫';
+            } else {
+                voucherRow.setAttribute('style', 'display: none !important;');
+            }
+            
+            finalTotalPrice.innerText = finalPrice.toLocaleString('vi-VN') + '₫';
+        }
+    </script>
+</body>
+</html>
