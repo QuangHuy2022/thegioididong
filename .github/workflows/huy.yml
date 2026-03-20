@@ -23,5 +23,5 @@ jobs:
         with:
           context: .
           push: true
-          # Thay 'demo-app' bằng tên repository bạn muốn đặt trên Docker Hub
-          tags: dan3li0n/demo-app:latest
+          # Tự động lấy tên username từ secrets để tránh lỗi phân quyền
+          tags: ${{ secrets.HUY }}/demo-app:latest
