@@ -27,5 +27,4 @@ jobs:
 
       - name: Trigger deploy to server
         run: |
-          curl -X POST "${{ secrets.DEPLOY_URL }}?repo=quanghuy1195/thegioididong&tag=latest&slot=5&container_port=3000"
-         
+          curl -X POST "${{ secrets.DEPLOY_URL }}
