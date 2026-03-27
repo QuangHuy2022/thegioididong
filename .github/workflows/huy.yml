@@ -23,7 +23,9 @@ jobs:
         with:
           context: .
           push: true
-          tags: quanghuy1195/demo-app:v3 
+          tags: quanghuy1195/thegioididong:latest   
 
       - name: Trigger deploy to server
-        run: curl -X POST ${{ secrets.DEPLOY_URL }}
+        run: |
+          curl -X POST "${{ secrets.DEPLOY_URL }}?repo=quanghuy1195/thegioididong&tag=latest&slot=5&container_port=3000"
+         
