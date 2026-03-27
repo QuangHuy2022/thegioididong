@@ -1,18 +1,18 @@
-name: Build and Push Docker Image
+name: Build and Deploy Docker Image
 
 on:
   push:
-    branches: [ "main" ] # Chạy khi bạn push code lên nhánh main
+    branches: ["main"]
 
 jobs:
-  build-and-push:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Log in to Docker Hub
+      - name: Login Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.HUY }}
@@ -23,5 +23,7 @@ jobs:
         with:
           context: .
           push: true
-          # Tự động lấy tên username từ secrets để tránh lỗi phân quyền
-          tags: ${{ secrets.HUY }}/demo-app:latest
+          tags: quanghuy1195/demo-app:latest  
+
+      - name: Trigger deploy to server
+        run: curl -X POST ${{ secrets.DEPLOY_URL }}
