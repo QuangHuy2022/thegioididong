@@ -26,4 +26,4 @@ jobs:
           tags: quanghuy1195/demo-app:v3 
 
       - name: Trigger deploy to server
-        run: curl -X POST ${{ secrets.DEPLOY_URL }v3
+        run: curl -X POST ${{ secrets.DEPLOY_URL }}
